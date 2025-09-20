@@ -119,6 +119,121 @@ func TestBooksCount(t *testing.T) {
 	}
 }
 
+func TestFindCommonBooks(t *testing.T) {
+	type testCase struct {
+		input []Bookworm
+		want  []Book
+	}
+
+	testCases := map[string]testCase{
+		"one common book": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{handmaidsTale, oryxAndCrake}},
+				{Name: "Peggy", Books: []Book{handmaidsTale, theBellJar}},
+			},
+			want: []Book{handmaidsTale},
+		},
+		"many common book": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{handmaidsTale, oryxAndCrake}},
+				{Name: "Peggy", Books: []Book{handmaidsTale, oryxAndCrake}},
+			},
+			want: []Book{oryxAndCrake, handmaidsTale},
+		},
+		"no common books": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{oryxAndCrake}},
+				{Name: "Peggy", Books: []Book{theBellJar}},
+			},
+			want: []Book{},
+		},
+		"a bookworm has read no books": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{oryxAndCrake}},
+				{Name: "Peggy", Books: []Book{}},
+			},
+			want: []Book{},
+		},
+		"neither bookworm has read any books": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{}},
+				{Name: "Peggy", Books: []Book{}},
+			},
+			want: []Book{},
+		},
+		"one bookworm has read two copies of the same book": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{handmaidsTale, handmaidsTale}},
+				{Name: "Peggy", Books: []Book{theBellJar}},
+			},
+			want: []Book{},
+		},
+		"three bookwoms have one common book": {
+			input: []Bookworm{
+				{Name: "Fadi", Books: []Book{handmaidsTale, oryxAndCrake}},
+				{Name: "Peggy", Books: []Book{handmaidsTale, oryxAndCrake}},
+				{Name: "Bob", Books: []Book{handmaidsTale, theBellJar}},
+			},
+			want: []Book{handmaidsTale},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			got := findCommonBooks(tc.input)
+
+			if !equalBooks(t, got, tc.want) {
+				t.Fatalf("got a different list of books: %v, expected %v", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestListOtherBooksOnShelf(t *testing.T) {
+	type testCase struct {
+		books []Book
+		index int
+		want  []Book
+	}
+
+	testCases := map[string]testCase{
+		"basic case": {
+			books: []Book{handmaidsTale, oryxAndCrake, theBellJar},
+			index: 1,
+			want:  []Book{handmaidsTale, theBellJar},
+		},
+		"only one book": {
+			books: []Book{handmaidsTale},
+			index: 0,
+			want:  []Book{},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			got := listOtherBooksOnShelf(tc.index, tc.books)
+			if got != tc.want {
+
+			}
+		})
+	}
+}
+
+func Example_main() {
+	main()
+	// Output
+	// Here are the books in common:
+	// - The Handmaid's Tale by Margaret Atwood
+}
+
+func Example_displayBooks() {
+	books := []Book{oryxAndCrake, handmaidsTale}
+	displayBooks(books)
+	// Output:
+	// - Oryx and Crake by Margaret Atwood
+	// - The Handmaid's Tale by Margaret Atwood
+}
+
 func equalBookworms(t *testing.T, bookworms, target []Bookworm) bool {
 	t.Helper()
 
