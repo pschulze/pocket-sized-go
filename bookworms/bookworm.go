@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -20,14 +21,22 @@ type Book struct {
 }
 
 func loadBookworms(filePath string) ([]Bookworm, error) {
+	// Standard file opening
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
+	// Using a buffered reader instead of directly passing the file to json.Decoder
+	// to reduce number of read syscalls, partiuclarly for larger files.
+	// Buffer size can be adjusted; useful if size is (relatively) well known.
+	buffedReader := bufio.NewReaderSize(f, 1024*1024) // 1MB buffer
+	// buffio.Reader doesn't implement Closer, no need to defer
+	decoder := json.NewDecoder(buffedReader)
+
 	var bookworms []Bookworm
-	err = json.NewDecoder(f).Decode(&bookworms)
+	err = decoder.Decode(&bookworms)
 	if err != nil {
 		return nil, err
 	}
@@ -103,38 +112,4 @@ func displayBooks(books []Book) {
 	for _, book := range books {
 		fmt.Println("-", book.Title, "by", book.Author)
 	}
-}
-
-// Recommendations
-
-type set map[Book]struct{}
-
-func (s set) Contains(b Book) bool {
-	_, ok := s[b]
-	return ok
-}
-
-func recommendOtherBooks(bookworms []Bookworm) []Bookworm {
-	sb := make(bookRecommendations)
-
-	// Register all books on everyone's shelf
-	for _, bookworm := range bookworms {
-		for i, book := range bookworm.Books {
-			otherBooks := listOtherBooksOnShelf(i, bookworm.Books)
-			registerBookRecommendations(sb, book, otherBooks)
-		}
-	}
-
-	recommendations := make([]Bookworm, len(bookworms))
-	for i, bookworm := range bookworms {
-		recommendations[i] = Bookworm{
-			Name:  bookworm.Name,
-			Books: recommendBooks(sb, bookworm.Books),
-		}
-	}
-
-	return recommendations
-}
-
-func listOtherBooksOnShelf(i int, books []Book) []Book {
 }

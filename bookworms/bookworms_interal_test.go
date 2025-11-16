@@ -189,43 +189,6 @@ func TestFindCommonBooks(t *testing.T) {
 	}
 }
 
-func TestListOtherBooksOnShelf(t *testing.T) {
-	type testCase struct {
-		books []Book
-		index int
-		want  []Book
-	}
-
-	testCases := map[string]testCase{
-		"basic case": {
-			books: []Book{handmaidsTale, oryxAndCrake, theBellJar},
-			index: 1,
-			want:  []Book{handmaidsTale, theBellJar},
-		},
-		"only one book": {
-			books: []Book{handmaidsTale},
-			index: 0,
-			want:  []Book{},
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			got := listOtherBooksOnShelf(tc.index, tc.books)
-			if got != tc.want {
-
-			}
-		})
-	}
-}
-
-func Example_main() {
-	main()
-	// Output
-	// Here are the books in common:
-	// - The Handmaid's Tale by Margaret Atwood
-}
-
 func Example_displayBooks() {
 	books := []Book{oryxAndCrake, handmaidsTale}
 	displayBooks(books)
